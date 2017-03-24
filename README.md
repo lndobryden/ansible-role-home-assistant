@@ -13,7 +13,17 @@ Requires Docker to be installed
 Role Variables
 --------------
 
-None
+```
+aws_access_key_id:
+aws_secret_access_key:
+aws_region:
+latitude:
+longitude:
+elevation:
+time_zone:
+darksky_api_key:
+zwave_network_key:
+```
 
 Example Playbook
 ----------------
