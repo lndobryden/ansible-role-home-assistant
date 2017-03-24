@@ -1,0 +1,163 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: {{ latitude }}
+  longitude: {{ longitude }}
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: {{ elevation }}
+  # metric for Metric, imperial for Imperial
+  unit_system: imperial
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: {{ time_zone }}
+
+  customize:
+    switch.aeotec_dsc11_smart_strip_switch_7_0_3:
+      friendly_name: Corner Lamp
+    switch.aeotec_dsc11_smart_strip_switch_7_0_4:
+      friendly_name: Blue Lamp
+    switch.aeotec_dsc11_smart_strip_switch_7_0_5:
+      friendly_name: Blue Lamp
+
+    sensor.aeotec_dsc11_smart_strip_energy_7_0:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_energy_7_0_2:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_energy_7_0_3:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_energy_7_0_4:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_energy_7_0_5:
+      hidden: true
+
+    sensor.aeotec_dsc11_smart_strip_power_7_8:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_power_7_8_2:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_power_7_8_3:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_power_7_8_4:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_power_7_8_5:
+      hidden: true
+
+    sensor.aeotec_dsc11_smart_strip_previous_reading_7_1:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_previous_reading_7_1_2:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_previous_reading_7_1_3:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_previous_reading_7_1_4:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_previous_reading_7_1_5:
+      hidden: true
+
+    sensor.aeotec_dsc11_smart_strip_previous_reading_7_9:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_previous_reading_7_9_2:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_previous_reading_7_9_3:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_previous_reading_7_9_4:
+      hidden: true
+    sensor.aeotec_dsc11_smart_strip_previous_reading_7_9_5:
+      hidden: true
+
+# Enables the frontend
+frontend:
+
+http:
+  # Uncomment this to add a password (recommended!)
+  # api_password: PASSWORD
+  # Uncomment this if you are using SSL or running in Docker etc
+  base_url: zoot:8123
+
+# Checks for available updates
+updater:
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time.
+history:
+
+# View all events in a logbook
+logbook:
+
+# Track the sun
+sun:
+
+# Weather Prediction
+sensor:
+  - platform: darksky
+    api_key: {{ darksky_api_key }}
+    monitored_conditions:
+      - summary
+      - icon
+#      - nearest_storm_distance
+#      - nearest_storm_bearing
+#      - precip_type
+#      - precip_intensity
+#      - precip_probability
+      - temperature
+#      - apparent_temperature
+#      - dew_point
+#      - wind_speed
+#      - wind_bearing
+#      - cloud_cover
+      - humidity
+      - pressure
+#      - visibility
+#      - ozone
+#      - minutely_summary
+#      - hourly_summary
+#      - daily_summary
+      - temperature_max
+      - temperature_min
+#      - apparent_temperature_max
+#      - apparent_temperature_min
+#      - precip_intensity_max
+    update_interval:
+      minutes: 5
+
+# Text to speech
+#tts:
+#  platform: google
+
+zwave:
+  usb_path: /dev/zwave
+
+light:
+  - platform: hyperion
+    host: hyperion
+
+media_player:
+  - platform: onkyo
+  - platform: kodi
+    host: zoot
+
+automation:
+- alias: Nightlight
+  trigger:
+    platform: state
+    entity_id: binary_sensor.aeotec_zw112_door_window_sensor_6_sensor_10_0
+    from: "off"
+    to: "on"
+  action:
+    - service: switch.turn_on
+      entity_id: switch.aeotec_dsc11_smart_strip_switch_7_0_5
+    - service: notify.sns_notify
+      data:
+        message: "Front Door Opened"
+        target: "arn:aws:sns:us-east-1:453442743114:Home-Monitors"
+
+
+notify:
+  - name: SNS_Notify
+    platform: aws_sns
+    aws_access_key_id: {{ aws_access_key_id }}
+    aws_secret_access_key: {{ aws_secret_access_key }}
+    region_name: '{{ aws_region }}'
