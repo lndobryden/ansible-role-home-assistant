@@ -1,2 +1,30 @@
 ---
-# tasks file for home-assistant
+
+- name: Copy USB rule for zwave controller
+  copy:
+    src: files/99-usb-serial.rules
+    dest: /etc/udev/rules.d/99-usb-serial.rules
+
+- name: Copy config files:
+  copy:
+    src: files/config/
+    dest: /opt/homeassistant/config/
+
+- name: Deploy Home Assistant Config
+  template: src=configuration.yaml.j2 dest=/opt/homeassistant/config/configuration.yaml
+
+- name: Deploy ZWave Options
+  template: src=options.xml.j2 dest=/opt/homeassistant/config/options.xml
+
+- name: Install Home Assistant Docker
+  docker_container:
+    name: home-assistant
+    state: started
+    image: homeassistant/home-assistant
+    restart_policy: always
+    network_mode: host
+    volumes:
+    - /opt/homeassistant/config:/config
+    - /etc/localtime:/etc/localtime:ro
+    devices:
+    - /dev/zwave:/dev/zwave
