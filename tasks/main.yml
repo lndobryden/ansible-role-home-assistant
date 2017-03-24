@@ -5,7 +5,7 @@
     src: files/99-usb-serial.rules
     dest: /etc/udev/rules.d/99-usb-serial.rules
 
-- name: Copy config files:
+- name: Copy config files
   copy:
     src: files/config/
     dest: /opt/homeassistant/config/
